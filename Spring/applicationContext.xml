@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<context:component-scan base-package="com.wangqing.aop"></context:component-scan>
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	
+	
+	<bean id="student" class="com.wangqing.beans.Student" autowire="no">
+		<!-- <property name="id" value="2016"></property>
+		<property name="name" value="wangqing"></property>
+		<property name="teacher" ref="teacher"></property> -->
+		<constructor-arg value="liyibai" name="name" ></constructor-arg>
+		<constructor-arg value="2018" name="id"></constructor-arg>
+		<constructor-arg name="teacher" ref="teacher"></constructor-arg>
+	</bean>
+	<bean id="teacher" class="com.wangqing.beans.Teacher">
+		<property name="id" value="12" />
+		<property name="name"  value="江泛舟"/>
+	</bean>
+	
+	<bean id="collectionEx" class="com.wangqing.beans.CollectionEx" >
+		<property name="listEx">
+			<list>
+				<value>1</value>
+				<value>2</value>
+				<value>3</value>
+			</list>
+			
+		</property>
+		<property name="arryEx">
+			<array value-type="int">
+				<value>23</value>
+				<value>24</value>
+				<value>25</value>
+			</array>
+		</property>
+		<property name="setEx">
+			<set>
+				<value>ni</value>
+				<value>da</value>
+				<value>ye</value>
+				<value>ni</value>
+			</set>
+		</property>
+		<property name="mapEx">
+			<map >
+				<entry>
+					<key>
+						<value>a</value>	
+					</key>
+					<value>aaaaa</value>				
+				</entry>
+				<entry>
+					<key>
+						<value>b</value>	
+					</key>
+					<value>bbbbb</value>				
+				</entry>
+				<entry>
+					<key>
+						<value>c</value>	
+					</key>
+					<value>cccccc</value>				
+				</entry>
+				
+			</map>
+		</property>
+	</bean>
+	
+	<!-- 配置前置通知 -->
+	
+	<!-- addStudent()所在类 -->
+	<bean id="printStudent" class="com.wangqing.service.StudentService">
+		<property name="student" ref="student"></property>
+	</bean>
+	<!-- 配置通知类 -->
+	<bean id="logBefore" class="com.wangqing.aop.LogBefore"></bean>
+	<bean id="logAfter" class="com.wangqing.aop.LogAfter"></bean>
+	<bean id="logException" class="com.wangqing.aop.LogException"></bean>
+	<bean id="logAround" class="com.wangqing.aop.LogAround"></bean>
+	<!-- 将printStudent()与logBefore()通知关联 -->
+	<aop:config>
+		<!-- 配置切入点（在哪里执行通知） -->
+		<aop:pointcut expression="execution(public void com.wangqing.service.StudentService.printStudent())" id="pointcut"/>
+		<!-- advisor：相当于 连接 切入点和切入面的线 -->
+		<!-- <aop:advisor advice-ref="logBefore" pointcut-ref="pointcut"/>
+		<aop:advisor advice-ref="logAfter" pointcut-ref="pointcut"/>
+		<aop:advisor advice-ref="logException" pointcut-ref="pointcut"/> 
+		<aop:advisor advice-ref="logAround" pointcut-ref="pointcut"/>  -->
+	</aop:config>
+	
+	
+</beans>

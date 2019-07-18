@@ -1,0 +1,438 @@
+SpringMVC
+1、导入jar
+    spring-aop.jar
+    spring-bean.jar
+    spring-context.jar
+    spring-core.jar
+    spring-web.jar
+    spring-webmvc.jar
+2、第一个SpringMVC程序
+    Servlet --> SpringMVC
+    jsp --> Servlet --> SpringMVC
+    1、SpringMVC配置文件springmvc.xml
+        选中常用的命名空间：beans aop context mvc 
+        <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/views/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+    2、配置web.xml进行请求拦截
+        普通的servlet流程 request --> url-pattern --> 交给对应的servlet处理
+        如果想用springmvc 而不是普通的servlet 需要配置springmvc中自带的servlet DispatcherServlet
+        通过以下配置，拦截所有请求，交给springmvc处理
+        <servlet>
+            <servlet-name>springDispatcherServlet</servlet-name>
+            <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        </servlet>
+        <servlet-mapping>
+            <servlet-name>springDispatcherServlet</servlet-name>
+            <url-pattern>/</url-pattern>
+        </servlet-mapping>
+            其中<url-pattern>/</url-pattern>
+            /：一切请求 非/*  // / 拦截所有但是不拦截精准匹配  /*拦截所有包括精准匹配
+            /user： /user开头的请求
+            /user/abc.do 只拦截该请求
+            .action  只拦截 .action结尾的请求
+    3、书写Controller
+        注解@Controller @RequestMapping
+            映射是去匹配@RequestMapping注解 可以和方法名、类名不一致
+        @RequestMapping(value="welcome",method=RequestMethod.POST,params = {"na=xx","age!=23","!height"})
+            value 默认值 用来映射位置
+            通过method指定 请求方式（get post delete put）
+            params = {"na=xx","age!=23","!height"}
+                <form action="welcome" method="get">
+                    <input name="username" />                       必须有name="na"参数     
+                    <input name="age" />                            如果有age则age!=23  /   没有name="age"
+                    <!-- <input type="hidden" name="height" /> -->  !height 不能有name="height"
+                    <input type="submit" name="su" />
+	            </form>    
+            headers = {}
+                指定请求头    
+        ant风格请求路径 注意"/"
+            ? 单字符 必须得有
+            * 任意个字符（0或多个）
+            *** 任意目录 一个目录 不能多级
+        @PathVaribale获取动态参数
+            @RequestMapping(value="welcome/{name}") 
+	        public String welcome(@PathVariable("name") String name) {
+        REST风格：软件编程风格
+        SpringMVC:
+            GET     查
+            POST    增
+            DELETE  删
+            PUT     改
+            普通浏览器只支持GET POST方式 其他请求方式 如delete put请求是通过过滤器来实现
+            1、过滤器   hiddenHttpMethodFilter
+                <filter>
+                    <filter-name>HiddenHttpMethodFilter</filter-name>
+                    <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+                </filter>
+                <filter-mapping>
+                    <filter-name>HiddenHttpMethodFilter</filter-name>
+                    <url-pattern>/*</url-pattern>
+                </filter-mapping>
+            2、过滤条件
+                a.<input type="hidden" name="_method" value="delete/put" />
+                b.请求方式为post
+            3、Controller 通过method=RequestMethod.xxx 匹配具体的请求
+               当映射名相同时@RequestMapping(value="testRest") 可以通过method处理不同的请求
+            4、protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+                HttpServletRequest requestToUse = request;
+
+                if ("POST".equals(request.getMethod()) && request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE) == null) {
+                    String paramValue = request.getParameter(this.methodParam);
+                    if (StringUtils.hasLength(paramValue)) {
+                        requestToUse = new HttpMethodRequestWrapper(request, paramValue);
+                    }
+                }
+
+                filterChain.doFilter(requestToUse, response);
+            }
+        @RequestParam("")拿请求参数
+            @RequestParam(value="username",required=false,defaultValue="23") 接受前台传递的值 等价于 request.getParameter("username")
+            required=false 该属性 不是必须的
+            defaultValue="23" 默认值 23
+        
+        @RequestHeader  获取请求头信息
+        @CookieValue 获取Cookie值 即JSESSIONID
+            服务端在接受客户端第一次请求时，回给该客户端分配一个session（该session包含一个sessionId）
+            并且服务端会在第一次响应客户端时，将该sessionId赋值给JSESSIONID并传递给客户端
+        使用对象（实体类）接收请求参数
+        在SpringMVC中使用原生态的Servlet API：HttpServletRequest 直接将servlet-api中的类、接口等写在
+        SpringMVC所映射的方法中
+
+3、处理模型数据
+    如果跳转时需要带数据：V、M 则可以使用以下方式
+        ModelAndView、ModelMap、Map、Model  数据放在了request作用域
+        eg: public String testModel(Model model | Map<String, Object> | ModelMap mm)
+        map.put("x", x)就会自动将x对象 放入request域中
+
+        @SessionAttributes("student") requset.setAttribute("student", xxx)
+            如果要在request中存放student对象 则同时将上述数据放入session域中
+        @ModelAttribute 在任何一次请求前 都会先执行@ModelAttribute修饰的方法
+            Map<String, Object> 约定 建立桥梁 map的key就是方法参数类型的首字母小写
+            
+            @ModelAttribute
+                public void queryStudentById(Map<String, Student> map) {
+                    Student student = new Student();
+                    student.setStuId(23);
+                    student.setStuName("zs");
+                    map.put("student", student);
+                }
+                
+                @RequestMapping(value="testModelAttribute")
+                public String testModelAttribute(Student student) {
+                    System.out.println(student.getStuName());
+                    return "success";
+                }
+
+4、视图、试图解析器
+    视图的顶级接口：View
+    视图解析器：ViewResolver
+    常见的视图和解析器
+        InternalResourceView 
+            --JstlView 可以解析jstl 实现国际化操作（针对不同地区、不同国家 进行国际化操作）
+            SpringMVC解析jsp时 会默认使用InternalResourceView 如果jsp中包含jstl则会自动转为JstlView
+        InternalResourceViewResolver 
+            success --> /views/success.jsp页面
+    实现国际化步骤
+        a.创建资源文件
+            基名_语言_国家.properties
+            base_zh_CN.properties / base_zh.properties
+            internationalization    i18n     nternationalizatio --> 18
+            eg:     i18n_zh_CN.properties
+                    i18n_en_US.properties
+                    i18n.properties
+        b.配置springmvc.xml 加载资源文件
+            springmvc.xml在加载时 如果有id="messageSource" 则会自动加载这个bean
+            <bean id="messageSource" class="ResourceBundleMessageSource">
+                <property name="basename" value="i18n" />
+            </bean>
+            ResourceBundleMessageSource会在springmvc响应程序时 接入（解析国际化资源文件）
+        c.通过jstl使用国际化
+            jstl.jar standar.jar
+
+5、InternalResourceViewResolver其他功能
+    index.jsp --> Controller(@RequestMapping) --> success.jsp
+    index.jsp --> success.jsp 使用SpringMVC实现
+        view-name 会被视图解析器 加上前缀 后缀
+        <mvc:view-controller path="" view-name="" />
+        注意：设置该标签会忽略@RequestMapping() 使两者共存 需设置
+        <mvc:annotation-driven></mvc:annotation-driven>
+    指定跳转方式 return "forward: xxx / redirect: xxx"
+        此种方式不会被视图解析器加上前缀和后缀 需要写全路径
+
+6、处理静态资源 html css js 图片 视频
+    在SpringMVC中 如果直接访问静态资源：404
+    原因：之前将所有请求 通过通配符 / 拦截 进而交给SpringMVC的入口DispatcherServlet去处理：去找该请求映射对应的@RequestMapping
+    解决：如果是需要MVC处理的 则交给@RequestMapping()处理 如果不需要SpringMVC处理 则使用tomcat默认的Servlet去处理
+          tomcat默认的Servlet处理：如果有对应的请求拦截 则交给相应的Servlet处理
+          tomcat/conf/web.xml     如果没有对应的Servlet 则直接访问
+    实现方法：只需要增加2个注解即可 springmvc.xml： 
+        <mvc:default-servlet-handler></mvc:default-servlet-handler>
+        <mvc:annotation-driven></mvc:annotation-driven>
+
+7、类型转换
+    a.SpringMVC自带的一些常见类型转换器
+        public String  testDelete(@PathVariable("id") String id)
+        即可以接受int类型数据id  也可以接受String类型的id
+    b.自定义类型转换器
+        i.编写 自定义类型转器的类 （实现Converter接口）
+            public class MyConverter  implements Converter<String,Student>{
+                @Override
+                public Student convert(String source) {//source:2-zs-23
+                    //source接受前端传来的String:2-zs-23
+                    String[] studentStrArr = source.split("-") ;
+                    Student student = new Student();
+                    student.setId(  Integer.parseInt(  studentStrArr[0]) );
+                    student.setName(studentStrArr[1]);
+                    student.setAge(Integer.parseInt(studentStrArr[2] ));
+                    return student;
+                }
+            }
+        ii.配置：将MyConverter加入到springmvc中
+            1、将 自定义转换器 纳入SpringIOC容器
+	            <bean  id="myConverter" class="org.lanqiao.converter.MyConverter"></bean>
+	        2、将myConverter再纳入 SpringMVC提供的转换器Bean -->
+                <bean id="conversionService"  class="org.springframework.context.support.ConversionServiceFactoryBean">
+                    <property name="converters">
+                        <set>
+                            <ref bean="myConverter"/>
+                        </set>
+                    </property>
+                </bean>
+	
+	        3、将conversionService注册到annotation-driven中（此配置是SpringMVC的基础配置，很功能都需要通过该注解来协调）
+	            <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+	
+        iii测试转换器：
+            @RequestMapping(value="testConverter")
+            public String testConverter(@RequestParam("studentInfo")  Student student) {// 前端：2-zs-23  
+                
+                System.out.println(student.getId()+","+student.getName()+","+student.getAge());
+                
+                return "success";
+            }
+            其中@RequestParam("studentInfo")是触发转换器的桥梁：
+            @RequestParam("studentInfo")接受的数据 是前端传递过来的：2-zs-23
+            但是 需要将该数据 复制给 修饰的目的对象Student 因此SPringMVC可以发现 
+            接收的数据 和目标数据不一致，并且 这两种数据分别是 String、Student
+            正好符合public Student convert(String source)转换器。
+
+
+8、数据格式化
+	SimpleDateForamt sdf = new SimpleDateFormat("yyyy-MM-dd  hh:mm:ss");
+    SPringMVC提供了很多注解，方便我们数据格式化
+    实现步骤：
+        a.配置
+            <!-- 配置 数据格式化 注解 所依赖的bean -->
+            <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+            </bean>
+            FormattingConversionServiceFactoryBean 既可以实现格式化 又可以实现类型转换
+        b.通过注解使用
+        @DateTimeFormat(pattern="yyyy-MM-dd")
+        @NumberFormat(parttern="###,#")  
+
+9、错误消息处理
+    public String testDateTimeFormat(Student student, BindingResult result ,Map<String,Object> map)
+    需要验证的数据是 Student中的birthday, SPringMVC要求 如果校验失败 则将错误信息 自动放入 该对象之后紧挨着的BindingResult中。
+    即Student student, BindingResult result之间 不能有其他参数。
+    如果要将控制台的错误消息 传到jsp中显示，则可以将 错误消息对象放入request域中，然后 在jsp中 从request中获取。
+        if(result.getErrorCount() > 0) {
+                for (FieldError error : result.getFieldErrors()) {
+                    System.out.println(error.getDefaultMessage());
+                }
+            }
+
+10、数据校验
+    JSR303  
+	Hibernate Validator
+    使用Hibernate Validator步骤：
+        a.jar（注意各个jar之间可能存在版本不兼容）
+        hibernate-validator-5.0.0.CR2.jar 	classmate-0.8.0.jar 	
+        jboss-logging-3.1.1.GA.jar
+        validation-api-1.1.0.CR1.jar 	hibernate-validator-annotation-processor-5.0.0.CR2.jar
+        b.配置
+            <mvc:annotation-driven ></mvc:annotation-driven>
+            此时mvc:annotation-driven的作用：要实现Hibernate Validator/JSR303 校验（或者其他各种校验）
+            必须实现SpringMVC提供的一个接口：ValidatorFactory
+            LocalValidatorFactoryBean是ValidatorFactory的一个实现类。
+            <mvc:annotation-driven ></mvc:annotation-driven>会在springmvc容器中 自动加载一个LocalValidatorFactoryBean类，因此可以直接实现数据校验。
+        c.直接使用注解
+            public class Student {
+
+                @Past//当前时间以前
+                private Date birthday ;
+            }
+            在校验的Controller中 ，给校验的对象前增加 @Valid
+		    public String testDateTimeFormat(@Valid Student student, BindingResult result ,Map<String,Object> map) 
+
+11、Ajax 请求
+    a.jar
+        jackson-annotations-2.8.9.jar
+        jackson-core-2.8.9.jar
+        jackson-databind-2.8.9.jar
+    b.@ResponseBody修饰的方法，会将该方法的返回值 以一个json数组的形式返回给前台
+        @ResponseBody//告诉SpringMVC，此时的返回 不是一个 View页面，而是一个 ajax调用的返回值（Json数组）
+		@RequestMapping(value="testJson")
+		public List<Student> testJson() {
+			//Controller-Service-dao
+			//StudentService studentService = new StudentServiceImp();
+            //List<Student> students =  studentService.qeuryAllStudent();
+			//模拟调用service的查询操作.
+			List<Student> students = new ArrayList<>();
+			students.add(stu1) ;
+			students.add(stu2) ;
+			students.add(stu3) ;
+			
+			return students;
+		}
+    前台：服务端将返回值结果 以json数组的形式 传给了result。
+	$("#testJson").click(function(){
+        //通过ajax请求springmvc
+        $.post(
+            "handler/testJson",//服务器地址
+            //{"name":"zs","age":23}
+            function(result){//服务端处理完毕后的回调函数 List<Student> students， 加上@ResponseBody后， students实质是一个json数组的格式
+                for(var i=0;i<result.length ;i++){
+                    alert(result[i].id +"-"+result[i].name +"-"+result[i].age);
+                }
+            }
+        );
+    }
+
+12、文件上传
+    1、SpringMVC实现文件上传：
+        和Servlet方式的本质一样，都是通过commons-fileupload.jar和commons-io.jar
+        SpringMVC可以简化文件上传的代码，但是必须满足条件：实现MultipartResolver接口
+        而该接口的实现类SpringMVC也已经提供了CommonsMultipartResolver
+
+    2、具体步骤：（直接使用CommonsMultipartResolver实现上传）
+        a.jar包
+            commons-fileupload.jar、commons-io.jar
+        b.配置CommonsMultipartResolver
+        将其加入SpringIOC容器
+            <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+                    <property name="defaultEncoding" value="UTF-8"></property>
+                    <!-- 上传单个文件的最大值，单位Byte;如果-1，表示无限制 -->
+                    <property name="maxUploadSize"  value="102400"></property>
+            </bean>
+        c.处理方法
+                //文件上传处理方法
+                @RequestMapping(value="testUpload") //abc.png
+                public String testUpload(@RequestParam("desc") String desc  , @RequestParam("file") MultipartFile file  ) throws IOException {
+                    
+                    System.out.println("文件描述信息："+desc);
+                    //jsp中上传的文件：file
+                    
+                    InputStream input = file.getInputStream() ;//IO
+                    String fileName = file.getOriginalFilename() ;
+                    
+                    OutputStream out = new FileOutputStream("d:\\"+fileName) ;
+                    
+                    
+                    byte[] bs = new byte[1024];
+                    int len = -1;
+                    while(( len = input.read(bs)) !=-1 ) {
+                        out.write(bs, 0, len);
+                    }
+                    out.close();
+                    input.close();
+                    //将file上传到服务器中的 某一个硬盘文件中
+                System.out.println("上传成功！");
+                    
+                    return "success";
+                }
+
+            <form action="handler/testUpload" method="post"  enctype="multipart/form-data">
+                <input type="file" name="file" />
+                描述:<input name="desc" type="text" />
+                
+                <input type="submit" value="上传">
+            </form>
+13、拦截器（ctrl+shift+r：自己编写的代码java .jsp .html     ctrl+shift+t：jar中的代码）
+	拦截器的原理和过滤器相同。
+        SpringMVC：要想实现拦截器，必须实现一个接口HandlerInterceptor
+    
+    a.编写拦截器implements HandlerInterceptor
+    b.配置：将自己写的拦截器 配置到springmvc中（spring）
+        <!-- 配置拦截器 -->
+        <mvc:interceptors><!-- 默认拦截全部 -->
+            <mvc:interceptor>
+                <!-- 指定拦截路径 -->
+                <mvc:mapping path="/testDirectVisit"/> ant风格
+                <!-- 指定不拦截路径 -->
+                <mvc:exclude-mapping path=""/>
+                <bean class="com.wangqing.interceptor.MyInterceptor"></bean>
+            </mvc:interceptor>
+            
+        </mvc:interceptors>
+
+14、SpringMVC异常
+    HandlerExceptionResolver接口，该接口的每个实现类 都是异常的一种处理方式
+
+    a.ExceptionHandlerExceptionResolver：主要提供了@ExceptionHandler注解，并通过该注解处理异常
+
+        i.在控制类中 @ExceptionHandler
+            //该方法 可以捕获本类中 抛出的ArithmeticException异常
+            @ExceptionHandler({ArithmeticException.class,ArrayIndexOutOfBoundsException.class  })
+            public String handlerArithmeticException(Exception e) {
+                System.out.println(e +"============");
+                return "error" ;
+            }
+            @ExceptionHandler标识的方法的参数 必须在异常类型(Throwable或其子类) ，不能包含其他类型的参数
+            异常处理路径：最短优先  
+                @ExceptionHandler({Exception.class  })
+                public ModelAndView handlerArithmeticException2(Exception e) {}
+
+                @ExceptionHandler({ArithmeticException.class  })
+                public ModelAndView handlerArithmeticException1(Exception e) {}
+            
+        ii.单独类 捕获全部@ControllerAdvice  @ExceptionHandler
+            @ControllerAdvice
+            public class MyExceptionHandler {
+                @ExceptionHandler({Exception.class})
+                public String testException(Exception e) {
+                    System.out.println("出错了。。。。。。。。");
+                    return "error";
+                }
+            }
+    b.ResponseStatusExceptionResolver：自定义异常显示页面 @ResponseStatus
+        i.单独类
+            @ResponseStatus(value=HttpStatus.FORBIDDEN,reason="数组越界222!!!")
+            public class MyArrayIndexOutofBoundsException extends Exception {//自定义异常
+            }
+       
+            @RequestMapping("testMyException")
+            public String testMyException(@RequestParam("i") Integer i) throws MyArrayIndexOutofBoundsException {
+                if(i == 3) {
+                    throw new MyArrayIndexOutofBoundsException();//抛出异常
+                }
+                return "success" ;
+            }
+
+        i.在控制类中 @ResponseStatus标志在方法前       
+            @RequestMapping("testMyException")
+            public String testMyException(@RequestParam("i") Integer i) {
+                if(i == 3) {
+                    return "redirect:testResponseStatus" ;//跳转到某一个 异常处理方法里
+                }
+                return "success" ;
+            }
+
+            @ResponseStatus(value=HttpStatus.FORBIDDEN,reason="数组越界222!!!")
+            @RequestMapping("testResponseStatus")
+            public String testResponseStatus(){
+                return "success";
+            }
+    c.DefaultHandlerExceptionResolver
+        扩展 HttpStatus
+
+    d.SimpleMappingExceptionResolver 
+        通过配置来实现异常的处理
+
+
+15、SSM整合
+
+
+

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wangqing.dao.StudentMapper" >
+	<update id="updateStudent" parameterType="String">
+		update student set age = 24 where name=#{xxx}
+	</update>
+	
+	<select id="selectStudentBynameage" parameterType="student" resultType="student">
+		select * from student 
+		<!-- 智能处理第一个<if> and 不会处理其他的<if>
+		<where>
+			<if test="name != null and name != ''">
+				and name = #{name}
+			</if>
+			<if test="age != null and age != 0">
+				and age = #{age}
+			</if>
+		</where> 
+		-->
+		
+		<!-- 
+		<choose>
+			<when test="name != null and name != '' ">
+				and name = #{name}
+			</when>
+			<when test="age != null and age != 0">
+				and age = #{age}
+			</when>
+			<otherwise>
+				and 2=2
+			</otherwise>
+		</choose> 
+		-->
+		
+		<!-- prefix前缀  prefixOverrides需要去除的特殊字符串
+		<trim prefix="where" prefixOverrides="and">
+			<if test="name != null and name != ''">
+				and name = #{name}
+			</if>
+			<if test="age != null and age != 0">
+				and age = #{age}
+			</if>
+		</trim> 
+		-->
+	</select>
+	
+	<update id="updateStu" parameterType="Student">
+		update student 
+		<!-- <set>动态前置set关键字 并消除sql语句最后一个多余的, -->
+		<set>
+			<if test="name != null and name != ''">
+				age = #{age},
+			</if>
+		</set>
+		where name = #{name}
+	</update>
+	
+	<select id="selectStudentByGrade" parameterType="Grade" resultType="Student">
+		select * from student 
+		<where>
+			<if test="grades != null and grades.size > 0">
+				<foreach collection="grades" item="grade" open="and grade in (" close=")" separator="," >
+						#{grade}
+				</foreach>
+			</if>
+		</where>
+	</select>
+	
+	
+</mapper>

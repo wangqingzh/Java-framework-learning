@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 命名空间 namespace.id  调用  id无重复时直接调用 -->
+<!-- 约定 > 配置（xml） > 硬编码（java/seter） 接口名称对应namespace 接口方法名对应id名  接口利用反射和动态代理找到mapper.xml  -->
+<mapper namespace="com.wangqing.dao.StudentMapper" >
+
+	<!-- 简单类型（8个基本类型+String）可以使用任意占位符#{xxx} 对象类型 必须事对象的属性#{属性名（严格区分大小写）} -->
+	<update id="updateStudent" parameterType="String">
+		update student set age = 24 where name=#{xxx}
+	</update>
+	
+	<!-- paramerType指定传入参数的类型	 输入和输出参数在形式上只能有一个
+	 resultType指定返回结果的类型		如果返回类型事一个对象，则无论时返回一个还是多个，在resultType都写成对象名  -->
+	<insert id="insertStudent" parameterType="Student">
+		inset into student(name, age, score) values(#{name}, #{age}, #{score})
+	</insert>
+	
+	<!-- 如果类中属性类型 和 表中的字段类型能够合理识别（String-varchar）则可以使用resultType，否则使用resultMap
+	 如果类中属性名 和 表中字段名能够合理识别（StuNo-stuno）则可以使用resultType，否则（id-stuno）使用resultMap-->
+	<resultMap type="" id="">
+		<!-- 主键id 和  非主键result -->
+		<id property="属性名" column="列名"  />
+		<result property="属性名" column="列名" javaType="" jdbcType=""  />
+	</resultMap>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

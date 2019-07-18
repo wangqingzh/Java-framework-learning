@@ -1,0 +1,49 @@
+Spring MyBatis 整合
+思路：
+	SqlSessionFactory --> SqlSession --> StudentMapper --> CRUD
+可以发现，MyBatis最终是通过SqlSessionFactory来操作数据库
+Spring整合MyBatis 其实就是 将MyBatis的SqlSessionFactory 交给Spring
+1、SM整合步骤
+	spring-tx.jar 
+	spring-jdbc.jar 
+	spring-expression.jar
+	spring-context-support.jar 
+	spring-core.jar spring-context.jar 
+	spring-beans.jar
+	spring-aop.jar 
+	spring-web.jar 
+	mybatis-spring.jar 
+	mybatis.jar log4j.jar 
+	commons-logging.jar 
+	commons-dbcp.jar 
+	commons-pool.jar
+	
+2、类-表
+
+3、MyBatis配置文件
+	mybatis.xml 
+
+4、通过mapper.xml将 类、表建立映射关系
+
+5、之前使用MyBatis.xml --> SqlSessionFactory
+现在整合的时候  需要通过Spring管理SqlSessionFactory 因此产生SqlSessionFactory所需要的数据库信息 
+不放入mybatis.xml而需要放入Spring配置文件当中
+	配置Spring配置文件（applicationContext.xml）
+
+6、使用Spring-MyBatis 整合产物开发程序
+	目标：通过Spring产生mybatis最终操作需要的 动态mapper对象 StudentMapper对象
+	Spring产生 动态mapper对象 三种方法
+	a.DAO实现类	继承	SqlSessionDaoSupport 类
+		SqlSessionDaoSupport类提供了一个属性 SqlSession
+	b.将第一种方式的实现类干掉
+		省略掉 第一种方式的 实现类
+		直接在MyBatis提供的mapper实现类：org.mybatis.spring.mapper.MapperFactoryBean
+		缺点：每个mapper都要配置一次
+	c.批量配置实现类
+
+
+
+
+
+
+

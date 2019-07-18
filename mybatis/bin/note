@@ -1,0 +1,136 @@
+自定义类型处理器
+	a.创建转换器 实现TypeHandle接口 此接口有一个实现类BaseTypeHandle
+		实现接口	继承实现类
+	b.mybatis.xml配置 转化器<typeHandles>
+
+输入参数parameterType
+	1、简单类型（8个基本类型+String）
+		a.#{任意值}
+		  ${value}标识符只能是value
+		b.#{任意值}自动给Sring类型加上'' （自动类型转换）
+		  ${value}原样输出  有时需加'${value}' 适合动态排序（动态字段）
+		c.#{}可以防止SQL注入
+		  ${}不可以
+	2、对象
+		#{属性名}
+		${属性名}
+	3、嵌套对象类型
+		支持级联属性 --> field.field
+	4、HashMap
+		通过键值对传值 K与占位符匹配 如果匹配成功用map的value替换占位符
+	5、标签<foreach> 迭代类型：数组 对象数组 集合 属性（Student类：List<Integer> ids）
+		a.数组  无论编写代码中，传递的是什么参数名，在mapper.xml中，必须用array代替该数组 parameterType="int[]"
+		b.集合  无论编写代码中，传递的是什么参数名，在mapper.xml中，必须用list代替该集合 parameterType="list"
+		c.对象数组  foreach中别名还是array   parameterType="Object"
+		
+输出参数resultType 
+	1、简单类型+String
+	2、对象
+	3、输出为集合 参数仍然写集合中的对象
+	***4、HashMap（一个map一个学生）
+	
+resultMap	
+	1、属性名与列名不一致（也可用resultType+HashMap方法  select 表的字段名 "类的属性"）
+
+
+SQL片段
+	java：方法
+	数据库：存储过程 存储函数
+	Mybatis：SQL片段
+	a.提取相似代码
+	b.调用
+	<sql id=""></sql>
+	<include refid="id"></include>
+
+关联查询
+	一对一
+	a.业务扩展类
+	b.resultMap
+		通过属性成员将两个类建立起联系
+		一对一：<association>
+		一对多：<collection>
+	一对多
+	（mybatis：多对一、多对多的本质就是一对多的变化）
+
+日志
+	如果不指定，mybatis会根据以下顺序 寻找日志 
+		SLF4J ApacheCommonsLogging Log4j2 Log4j JDKLogging
+	在src目录下建立log4j.properties
+	日志级别：debug info warn error
+	开发时设置debug 运行时设置info及以上
+	
+延迟加载（lazyload）
+	针对关联映射（一对一 一对多 多对一 多对多）嵌套查询
+	不采用延迟加载 将结果全部查询并展现
+	<!-- 打开延迟加载开关 -->
+	<setting name="lazyLoadingEnabled" value="true"/>
+	<!-- 将积极加载改为延迟加载 即按需加载 -->
+	<setting name="aggressiveLazyLoading" value="false"/>
+
+查询缓存
+	一级缓存：（内存）
+		范围：同一个SqlSession对象
+		清理：SqlSession.commit()清理SqlSession中的一级缓存
+		开启：mybatis默认开启一级缓存
+		注意：如果用同样的SqlSession对象查询相同的数据，则只会在第一次查询时向数据库发送SQL语句，
+		 并将查询的结果放入sqlsession中，后续再次查询同样的对象时，则直接从缓存中查询该对象即可（即省略了数据库的访问）
+
+	二级缓存：
+		mybatis自带二级缓存（默认关闭）（内存-->硬盘----对象序列化）
+			范围：同一个namespSace生成的mapper对象
+			开启：
+				mybatis.xml
+					<!-- 开启二级缓存 -->
+					<setting name="cacheEnabled" value="true"/>
+				mapper.xml
+					<!-- 声明二级缓存 全部开启 -->
+					<cache /> 
+				准备缓存的对象，必须实现序列化接口（implement Serializable 级联属性和父类也要实现）
+				触发将对象写入二级缓存的时机：SqlSession对象的close()方法
+			禁用：
+				select标签默认开启二级缓存
+				<select useCache="false" ></select>
+			清理：a.SqlSession对象的commit()方法 （一般执行增删改时 会清理掉缓存 设计的原因 是为了防止脏数据）		
+				  查询时的commit()不会清理掉缓存
+				b.在select标签中 增加属性 flushCache="true"
+		第三方提供的二级缓存
+			ehcache、memcache以及自己定义的二级缓存 必须实现org.apache.ibatis.cache.Cache接口 该接口默认实现类是PerpetualCache
+			整合ehcache二级缓存
+				a. Ehcache-core.jar mybatis-Ehcache.jar slf4j-api.jar
+				b. 编写配置文件Ehcache.xml
+				c. 开启 
+					mapper.xml
+					<cache type=""></cache>
+
+逆向工程
+	DB/student表		studentMapper.xml		Student类
+					StudentMapper接口
+	表、类、接口、mapper.xml四者密切相关 因此 当知道一个的时候 其他三个应该可以自动生成
+	表-->其他三个
+	工具：mybatis-generator-core.jar
+	实现步骤：
+		a. 导包
+		b. 逆向工程的配置文件generator.xml
+		c. 执行
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 按照先后顺序 (properties?, settings?, typeAliases?, typeHandlers?, objectFactory?, objectWrapperFactory?,
+	reflectorFactory?, plugins?, environments?, databaseIdProvider?, mappers?) -->
+	
+	<!-- 导入连接数据库的配置文件 -->
+	<properties resource="jdbclink.properties"></properties>
+	
+	<!-- 全局设置 -->
+	<settings>
+		<!-- 开启日志 指定使用的具体的日志 -->
+		<setting name="logImpl" value="LOG4J"/>
+		<!-- 开启二级缓存 -->
+		<setting name="cacheEnabled" value="true"/>
+		<!-- 打开延迟加载开关 -->
+		<setting name="lazyLoadingEnabled" value="true"/>
+		<!-- 将积极加载改为延迟加载 即按需加载 -->
+		<setting name="aggressiveLazyLoading" value="false"/>
+	</settings>
+	
+	<!-- 单个别名 别名在mapper.xml中使用忽略大小写  <typeAlias type="全名" alias="别名"/> 
+		   多个别名 自动将包中的类批量定义别名 别名就是类名（不带包名，忽略大小写）  <package name=""/>  -->
+	<typeAliases>
+		<package name="com.wangqing.beans"/>
+	</typeAliases>
+	
+	<environments default="mysql">
+		<environment id="mysql">
+			<transactionManager type="JDBC"></transactionManager><!-- 事务处理JDBC需要手动commit() rollback() close() -->
+			<dataSource type="POOLED"><!-- 数据库连接池 -->
+				<property name="driver" value="${jdbc.driver}" />
+				<property name="url" value="${jdbc.url}" />
+				<property name="username" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<!-- mapper.xml注册 -->
+	<mappers>
+		<mapper resource="com/wangqing/dao/dynamicsql.xml" />
+		<mapper resource="com/wangqing/dao/relationalmapper.xml"/>
+	</mappers>
+</configuration>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

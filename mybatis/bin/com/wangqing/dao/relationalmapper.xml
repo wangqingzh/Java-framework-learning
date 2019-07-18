@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangqing.dao.RelationalMapper">
+	<!-- 声明二级缓存 -->
+	<cache />
+	
+	<!-- 一 对一 关联查询 -->
+	<select id="selectStudent" parameterType="int" resultMap="card_student_mapper">
+		select s.*, c.*
+		from student s, stucard c
+		where  s.cardid = c.cardid and s.gradeid = #{grade}
+	</select>
+	<resultMap type="Student" id="card_student_mapper">
+		<id property="id" column="id"/>
+		<result property="name" column="name" />
+		<result property="age" column="age" />
+		<result property="score" column="score" />
+		<association property="card" javaType="StuCard">
+			<!-- property对应类的属性名 一定要一致 -->
+			<id property="cardId" column="cardid"/>
+			<result property="cardInfo" column="cardinfo"/>
+		</association>
+	</resultMap>
+	
+	<!-- 一 对多 关联查询 -->
+	<select id="selectGradeWithStudents" parameterType="int" resultMap="sgws">
+		select g.*,s.*
+		from grade g, student s
+		where g.gradeid = s.gradeid and g.gradeid=#{grade}
+	</select>
+	<resultMap type="Grade" id="sgws">
+		<id property="gradeId" column="gradeid"/>
+		<result property="gradeInfo" column="gradeinfo" />
+		<collection property="students" ofType="Student">
+			<id property="id" column="id"/>
+			<result property="name" column="name" />
+			<result property="age" column="age" />
+			<result property="score" column="score" />
+		</collection>
+	</resultMap>
+	
+	<!-- 嵌套查询 延迟加载 -->
+	<select id="selectGradeLazyLoading" parameterType="int" resultMap="sgws">
+		select g.*,s.*
+		from grade g, student s
+		where g.gradeid = s.gradeid and g.gradeid=#{grade}
+	</select>
+	<resultMap type="Grade" id="sgws">
+		<id property="gradeId" column="gradeid"/>
+		<result property="gradeInfo" column="gradeinfo" />
+		<collection property="students" ofType="Student">
+			<id property="id" column="id"/>
+			<result property="name" column="name" />
+			<result property="age" column="age" />
+			<result property="score" column="score" />
+		</collection>
+	</resultMap>
+	
+
+</mapper>

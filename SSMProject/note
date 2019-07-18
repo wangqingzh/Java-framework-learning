@@ -1,0 +1,144 @@
+SSM整合：
+	Spring - SpringMVC -  MyBatis 
+	
+	一、Spring -  MyBatis：将MyBatis的SqlSessionFactory 交给Spring
+	
+	二、Spring - SpringMVC：就是将Spring - SpringMVC 各自配置一遍
+
+
+一、Spring整合MyBatis
+	1、思路：
+		SqlSessionFactory -> SqlSession ->StudentMapper ->CRUD
+	可以发现 ，MyBatis最终是通过SqlSessionFactory来操作数据库，
+	Spring整合MyBatis 其实就是 将MyBatis的SqlSessionFactory 交给Spring
+
+	2、SM整合步骤：
+		a.jar
+			spring:
+				spring-aop.jar	
+				spring-beans.jar
+				spring-context-support.jar	
+				spring-core.jar		
+				spring-context.jar
+				spring-expression.jar
+				spring-jdbc.jar		
+				spring-tx.jar	
+				spring-web.jar	
+				
+			mybatis-spring.jar
+					
+			mybatis:
+				mybatis.jar	
+				commons-logging.jar
+				log4j.jar
+				
+				mysqlconnect.jar
+					
+				commons-dbcp.jar		
+				commons-pool.jar
+		b. 类-表
+			Student类 -student表
+		
+		
+		c. MyBatis配置文件（mybatisconf.xml mapper.xml log4j.properties jdbc.properties）
+			与Spring整合时，mybatisconf.xml可省，将该文件中的配置 全部交由spring管理
+			mapper.xml
+				<?xml version="1.0" encoding="UTF-8" ?>
+				<!DOCTYPE mapper
+				PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+				"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+				<mapper namespace="xxx">
+				</mapper>
+			log4j.properties
+				# Global logging configuration
+				log4j.rootLogger=DEBUG, stdout
+				# MyBatis logging configuration...
+				log4j.logger.org.mybatis.example.BlogMapper=TRACE
+				# Console output...
+				log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+				log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+				log4j.appender.stdout.layout.ConversionPattern=%5p [%t] - %m%n
+			jdbc.properties
+				driver=com.mysql.cj.jdbc.Driver
+				url=jdbc:mysql://localhost:3306/ssm?useUnicode=true&characterEncoding=UTF8&usrSSL=false&serverTimezone=UTC
+				username=root
+				password=77891
+				
+		d. spring配置文件 applicationContext.xml
+			i.web项目引入Spring
+			ii.编写applicationContext.xml
+				1、数据源 映射文件
+					a.加载jdbc.properties
+					b.配置数据源
+					c.创建SqlSessionFactory
+					d.批量生成mapper对象
+				
+		
+		
+		e. 通过mapper.xml将 类、表建立映射关系
+
+		f. 使用Spring整合MyBatis ：将MyBatis的SqlSessionFactory 交给Spring
+			<bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+			<property name="sqlSessionFactoryBeanName" value="ssfb"></property>
+			<!-- 指定批量产生 哪个包中的mapper对象 -->
+			<property name="basePackage" value="com.wangqing.dao"></property>
+			</bean>
+		
+二、整合SpringMVC：将springmvc加入项目即可 
+	a.加入SpringMVC需要的jar
+		spring-webmvc.jar
+
+	b.给项目加入SpringMVC支持
+		web.xml：dispatcherServlet
+
+	c.编写springmvc配置文件：
+		springmvc.xml
+			视图解析器
+				<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="prefix" value="/views/"></property>
+					<property name="suffix" value=".jsp"></property>
+				</bean>
+			基础配置
+				<mvc:annotation-driven></mvc:annotation-driven>
+
+
+mapper -->  service --> controller
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
