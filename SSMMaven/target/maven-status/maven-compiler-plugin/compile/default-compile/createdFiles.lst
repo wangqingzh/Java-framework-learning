@@ -1,5 +1,0 @@
-com\wangqing\service\UserServiceImp.class
-com\wangqing\bean\User.class
-com\wangqing\controller\UserController.class
-com\wangqing\service\UserService.class
-com\wangqing\dao\UserMapper.class

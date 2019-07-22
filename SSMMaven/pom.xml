@@ -12,10 +12,9 @@
 		<servlet-version>3.0.1</servlet-version>
 		<jsp-version>2.0</jsp-version>
 		<jstl-version>1.2</jstl-version>
-		<standard-version>1.1.2</standard-version>
+		<jstl-impl-version>1.2</jstl-impl-version>
 		<!-- Spring -->
 		<spring-version>4.3.6.RELEASE</spring-version>
-		<aspectjweaver-version>1.9.4</aspectjweaver-version>
 		<!-- mybatis -->
 		<mybatis-version>3.5.1</mybatis-version>
 		<mybatis-spring-version>1.3.2</mybatis-spring-version>
@@ -23,8 +22,6 @@
 		<dbcp-version>2.6.0</dbcp-version>
 		<!-- log4j日志 -->
 		<log4j-version>1.2.17</log4j-version>
-		<!-- jackson -->
-		<jackson-version>2.4.1</jackson-version>
 		<!-- 文件上传 -->
 		<commons-fileupload-version>1.4</commons-fileupload-version>
 	</properties>
@@ -43,15 +40,40 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jstl</groupId>
-			<artifactId>jstl</artifactId>
+			<groupId>javax.servlet.jsp.jstl</groupId>
+			<artifactId>jstl-api</artifactId>
 			<version>${jstl-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet.jsp</groupId>
+					<artifactId>jsp-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>${standard-version}</version>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>jstl-impl</artifactId>
+			<version>${jstl-impl-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet.jsp</groupId>
+					<artifactId>jsp-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet.jsp.jstl</groupId>
+					<artifactId>jstl-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+		
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -63,18 +85,14 @@
 			<artifactId>spring-jdbc</artifactId>
 			<version>${spring-version}</version>
 		</dependency>
-		<dependency><!-- SpringAOP依赖 -->
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-			<version>${aspectjweaver-version}</version>
-		</dependency>
-		<!-- mybatis -->
+		
+		<!-- mybatis与数据库 -->
 		<dependency>
 			<groupId>org.mybatis</groupId>
 			<artifactId>mybatis</artifactId>
 			<version>${mybatis-version}</version>
 		</dependency>
-		<dependency> <!-- mybatis和spring整合 -->
+		<dependency> <!-- mybatis/spring -->
 			<groupId>org.mybatis</groupId>
 			<artifactId>mybatis-spring</artifactId>
 			<version>${mybatis-spring-version}</version>
@@ -89,16 +107,15 @@
 			<artifactId>commons-dbcp2</artifactId>
 			<version>${dbcp-version}</version>
 		</dependency>
+		
 		<!-- log4j 日志 -->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>${log4j-version}</version>
 		</dependency>
-		<!-- jackson -->
-		<!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-databind</artifactId> 
-			<version>${jackson-version}</version> </dependency> -->
-		<!-- apache 图片上传 -->
+		
+		<!-- 文件上传 -->
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
