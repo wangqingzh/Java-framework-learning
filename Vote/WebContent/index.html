@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>index</title>
+		<script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+		<script type="text/javascript" src="js/bootstrap.js"></script>
+		<link rel="stylesheet" href="css/bootstrap.css" />
+		<style type="text/css">
+			#login{
+				margin-top: 10%;
+			}
+		</style>
+		<script type="text/javascript">
+			$("document").ready(function() {
+				$("#loginbtn").click(function() {
+					var code = $("#code").val();
+					var passwd = $("#passwd").val();
+					if (code == "" || code == null) {
+						alert("用户账户不能为空");
+						return false;
+					}
+					if (isNaN(code)) {
+						alert("用户账户应是小于6位的数字");
+						return false;
+					}
+					if (passwd == "" || passwd == null) {
+						alert("密码不能为空");
+						return false;
+					}
+
+				});
+			});
+		</script>
+	</head>
+
+	<body>
+
+		<div class="container">
+			<div class="row" id="login">
+				<div class="col-md-offset-3 col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading text-center" style="font-size: 20px">
+							<p>登录以投票</p>
+						</div>
+						<div class="panel-body">
+							<form class="form-horizontal" action="login" method="post">
+								<div class="form-group">
+									<label class="col-md-4 control-label">用户账号</label>
+									<div class="col-md-6">
+										<input class="form-control" type="text" id="code" name="usercode" placeholder="usercode" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-md-4 control-label">用户密码</label>
+									<div class="col-md-6">
+										<input class="form-control" type="password" id="passwd" name="userpassword" placeholder="password" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-md-offset-4 col-md-6">
+										<input class="btn btn-primary" type="submit" id="loginbtn" value="登录" /> <a class="btn btn-info" href="reg.html">注册</a>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+
+
+	</body>
+
+</html>

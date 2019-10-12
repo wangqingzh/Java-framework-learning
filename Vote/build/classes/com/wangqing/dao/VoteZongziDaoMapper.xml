@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangqing.dao.VoteZongziDao">
+	<insert id="insertVote" parameterType="com.wangqing.bean.VoteZongzi">
+		insert into votezongzi(userid, sex, age, vote)
+		values(#{userId}, #{sex}, #{age}, #{vote})
+	</insert>
+	<select id="selectVoteById" parameterType="Integer" resultType="com.wangqing.bean.VoteZongzi">
+		select * from votezongzi where userid = #{userId}
+	</select>
+	<select id="countVote" parameterType="String" resultType="int">
+		select count(*) from votezongzi where vote = #{vote}
+	</select>
+				
+	<select id="countVoteBySex" parameterType="String" resultType="int">
+		select count(*) as count from votezongzi where sex = #{sex} and vote = #{vote}
+	</select>
+	
+	
+	<select id="countVoteByAge"  resultMap="agevotelist">
+		select age , count(*) as count from votezongzi where vote = #{vote}
+	</select>
+	<resultMap type="com.wangqing.bean.AgeVote" id="agevotelist">
+		<result column="age" property="age" />
+		<result column="count" property="count" />
+	</resultMap>
+	
+	<update id="updateVote" parameterType="com.wangqing.bean.VoteZongzi">
+		update votezongzi set sex = #{sex}, age = #{age}, vote = #{vote}
+		where userid = #{userId}
+	</update>
+</mapper>

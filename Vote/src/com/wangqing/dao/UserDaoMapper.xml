@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangqing.dao.UserDao">
+	<select id="findUser" parameterType="String" resultType="com.wangqing.bean.User">
+		select * from user where usercode = #{usercode} and userpassword = #{password}
+	</select>
+	<insert id="insertUser" parameterType="com.wangqing.bean.User">
+		insert into user(usercode, username, userpassword) values(#{userCode}, #{userName}, #{userPassword})
+	</insert>
+</mapper>

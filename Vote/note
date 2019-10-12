@@ -1,0 +1,4 @@
+1、springmvc拦截器不能拦截jsp文件
+2、tomcat服务器的WEB-INF/目录 浏览器不可直接访问
+	可将jsp文件放在tomcat WEB-INF/目录下中
+4、表单向实体类绑定时 属性名要完全对应
